@@ -41,10 +41,15 @@ function attachGalleryListeners1(tab_name) {
   exporterButton.style.borderRadius = "5px";
   exporterButton.style.cursor = "pointer";
   exporterButton.style.marginLeft = "10px";
-  
-  // 添加导出按钮
-  const toolbar = gradioApp().querySelector(`#${tab_name}_generation_info_button`);
-  toolbar.appendChild(exporterButton);
+
+
+  const actionsColumn = gradioApp().querySelector(`#${tab_name}_actions_column`);
+const toolbar = document.createElement("div");
+toolbar.id = `${tab_name}_generation_info_toolbar`;
+toolbar.className = "gr-toolbar";
+toolbar.style = "margin-bottom: 1em";
+actionsColumn.insertBefore(toolbar, actionsColumn.firstChild);
+toolbar.appendChild(exporterButton);
   
 
 
