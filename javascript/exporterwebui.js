@@ -48,15 +48,15 @@ exporterButton.onclick = function() {
   exporterButton.style = `padding-left: 0.1em; padding-right: 0em; margin: 0.1em 0;max-height: 2em; max-width: 6em`;
 
   // 创建新的div
-  // const actionsColumn = document.createElement("div");
-  // actionsColumn.id = `${tab_name}_actions_column`;
-  // actionsColumn.className = "flex-shrink-0 pl-3 pr-3 pt-2 pb-2 text-right overflow-hidden";
-  // actionsColumn.appendChild(exporterButton);
+  const actionsColumn = document.createElement("div");
+  actionsColumn.id = `${tab_name}_actions_column`;
+  actionsColumn.className = "flex-shrink-0 pl-3 pr-3 pt-2 pb-2 text-right overflow-hidden";
+  actionsColumn.appendChild(exporterButton);
 
   // // 将新创建的div添加到页面上
-  // const parent = gradioApp().querySelector('#'+tab_name+'_gallery')
-  // parent.insertBefore(actionsColumn, parent.firstChild);
-gallery.appendChild(exporterButton);
+  const parent = gradioApp().querySelector('#'+tab_name+'_gallery')
+   parent.insertBefore(actionsColumn, parent.firstChild);
+// gallery.appendChild(exporterButton);
   return gallery;
 
 }
