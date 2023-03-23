@@ -22,9 +22,15 @@ let modalObserver1 = new MutationObserver(function(mutations) {
 });
 
 function attachGalleryListeners1(tab_name) {
-  console.log("===========1")
+  gallery = gradioApp().querySelector('#'+tab_name+'_gallery')
+  gallery?.addEventListener('click', () => gradioApp().getElementById(tab_name+"_exporter_button").click());
+  gallery?.addEventListener('keydown', (e) => {
+    if (e.keyCode == 37 || e.keyCode == 39) // left or right arrow
+      gradioApp().getElementById(tab_name+"_exporter_button").click()
+  });
+  console.log("======")
   console.log(tab_name)
-
+  
   // 创建导出按钮
   const exporterButton = document.createElement("button");
   exporterButton.innerHTML = "Export";
@@ -34,32 +40,19 @@ function attachGalleryListeners1(tab_name) {
     const data = gradioInterface.inputs;
     exportData(JSON.stringify(data));
   });
-  exporterButton.style.backgroundColor = "red";
-  exporterButton.style.color = "white";
-  exporterButton.style.padding = "10px";
-  exporterButton.style.border = "none";
-  exporterButton.style.borderRadius = "5px";
-  exporterButton.style.cursor = "pointer";
-  exporterButton.style.marginLeft = "10px";
+  exporterButton.className = "gr-button gr-button-lg gr-button-secondary";
+  exporterButton.style = `padding-left: 0.1em; padding-right: 0em; margin: 0.1em 0;max-height: 2em; max-width: 6em`;
 
+  // 创建新的div
+  const actionsColumn = document.createElement("div");
+  actionsColumn.id = `${tab_name}_actions_column`;
+  actionsColumn.className = "flex-shrink-0 pl-3 pr-3 pt-2 pb-2 text-right overflow-hidden";
+  actionsColumn.appendChild(exporterButton);
 
-  const actionsColumn = gradioApp().querySelector(`#${tab_name}_actions_column`);
-const toolbar = document.createElement("div");
-toolbar.id = `${tab_name}_generation_info_toolbar`;
-toolbar.className = "gr-toolbar";
-toolbar.style = "margin-bottom: 1em";
-actionsColumn.insertBefore(toolbar, actionsColumn.firstChild);
-toolbar.appendChild(exporterButton);
-  
+  // 将新创建的div添加到页面上
+  const parent = gradioApp().querySelector(`#${tab_name}_generation_info`);
+  parent.insertBefore(actionsColumn, parent.firstChild);
 
-
-  gallery = gradioApp().querySelector('#'+tab_name+'_gallery')
-  gallery?.addEventListener('click', () => gradioApp().getElementById(tab_name+"_exporter_button").click());
-  gallery?.addEventListener('keydown', (e) => {
-    if (e.keyCode == 37 || e.keyCode == 39) // left or right arrow
-      gradioApp().getElementById(tab_name+"_exporter_button").click()
-  });
-  
   return gallery;
 }
 
