@@ -22,14 +22,7 @@ let modalObserver1 = new MutationObserver(function(mutations) {
 });
 
 function attachGalleryListeners1(tab_name) {
-  gallery = gradioApp().querySelector('#'+tab_name+'_gallery')
-  gallery?.addEventListener('click', () => gradioApp().getElementById(tab_name+"_exporter_button").click());
-  gallery?.addEventListener('keydown', (e) => {
-    if (e.keyCode == 37 || e.keyCode == 39) // left or right arrow
-      gradioApp().getElementById(tab_name+"_exporter_button").click()
-  });
-  
-  // 创建导出按钮
+ // 创建导出按钮
   const exporterButton = document.createElement("button");
   exporterButton.innerHTML = "Export";
   exporterButton.id = tab_name+"_exporter_button";
@@ -51,6 +44,17 @@ function attachGalleryListeners1(tab_name) {
 
   const actionsColumn = gradioApp().querySelector(`#${tab_name}_actions_column`);
   actionsColumn.append(nai2LocalArea);
+
+
+
+  gallery = gradioApp().querySelector('#'+tab_name+'_gallery')
+  gallery?.addEventListener('click', () => gradioApp().getElementById(tab_name+"_exporter_button").click());
+  gallery?.addEventListener('keydown', (e) => {
+    if (e.keyCode == 37 || e.keyCode == 39) // left or right arrow
+      gradioApp().getElementById(tab_name+"_exporter_button").click()
+  });
+  
+
   // 添加导出按钮
   // const toolbar = gradioApp().querySelector(`#${tab_name}_generation_info_toolbar`);
   // toolbar.appendChild(exporterButton);
