@@ -11,7 +11,44 @@ onUiUpdate(function(){
     modal1 = gradioApp().getElementById('lightboxModal')
     modalObserver1.observe(modal1,  { attributes : true, attributeFilter : ['style'] });
   }
+
+  const generateBtn = gradioApp().querySelector("#txt2img_generate");
+  const actionsColumn = gradioApp().querySelector("#txt2img_actions_column");
+  const nai2local = gradioApp().querySelector("#nai2local");
+
+  if (!generateBtn || !actionsColumn || nai2local) return;
+
+  generateBtn.addEventListener("click", onClickGenerate);
+
+  const nai2LocalArea = document.createElement("div");
+  nai2LocalArea.id = "nai2local";
+  nai2LocalArea.className = "overflow-hidden flex col gap-4";
+  nai2LocalArea.style = "padding: 0.4em 0em";
+
+  const convertBtn = createButton(
+    "exporter",
+    "exporter",
+    onClickExporter
+  );
+
+  nai2LocalArea.appendChild(convertBtn);
+  actionsColumn.append(nai2LocalArea);
+
 });
+
+
+
+
+function createButton(id, innerHTML, onClick) {
+  const button = document.createElement("button");
+  button.id = id;
+  button.type = "button";
+  button.innerHTML = innerHTML;
+  button.className = "gr-button gr-button-lg gr-button-secondary";
+  button.style = `padding-left: 0.1em; padding-right: 0em; margin: 0.1em 0;max-height: 2em; max-width: 6em`;
+  button.addEventListener("click", onClick);
+  return button;
+}
 
 let modalObserver1 = new MutationObserver(function(mutations) {
   mutations.forEach(function(mutationRecord) {
@@ -29,6 +66,10 @@ function attachGalleryListeners1(tab_name) {
       gradioApp().getElementById(tab_name+"_exporter_info_button").click()
   });
   return gallery;
+}
+function onClickExporter(){
+    const data = gradioInterface.inputs;
+    exportData(JSON.stringify(data));
 }
 
 function exportData(data) {
