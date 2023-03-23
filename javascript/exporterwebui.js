@@ -54,7 +54,7 @@ exporterButton.onclick = function() {
   actionsColumn.appendChild(exporterButton);
 
   // // 将新创建的div添加到页面上
-  const parent = gradioApp().querySelector('#'+tab_name+'_gallery')
+  const parent = gradioApp().querySelector('#'+tab_name+'_gallery');
    parent.insertBefore(actionsColumn, parent.firstChild);
 // gallery.appendChild(exporterButton);
   return gallery;
