@@ -37,12 +37,14 @@ function attachGalleryListeners1(tab_name) {
   exporterButton.id = tab_name+"_exporter_button";
   exporterButton.style.display = "none";
 exporterButton.onclick = function() {
-  let formValues = gradioApp().getInputData();
-  let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(formValues));
-  let dlAnchorElem = document.createElement('a');
-  dlAnchorElem.setAttribute("href", dataStr);
-  dlAnchorElem.setAttribute("download", "form-data.json");
-  dlAnchorElem.click();
+  // let formValues = gradioApp().getInputData();
+  // let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(formValues));
+  // let dlAnchorElem = document.createElement('a');
+  // dlAnchorElem.setAttribute("href", dataStr);
+  // dlAnchorElem.setAttribute("download", "form-data.json");
+  // dlAnchorElem.click();
+
+  gradioApp().getElementById(tab_name+"_generation_info_button").click()
 }
   exporterButton.className = "gr-button gr-button-lg gr-button-secondary";
   exporterButton.style = `padding-left: 0.1em; padding-right: 0em; margin: 0.1em 0;max-height: 2em; max-width: 6em`;
@@ -56,6 +58,7 @@ exporterButton.onclick = function() {
   // // 将新创建的div添加到页面上
   const parent = gradioApp().querySelector('#'+tab_name+'_gallery');
    parent.insertBefore(actionsColumn, parent.firstChild);
+
 // gallery.appendChild(exporterButton);
   return gallery;
 
