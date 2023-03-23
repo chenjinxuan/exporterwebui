@@ -28,7 +28,7 @@ function attachGalleryListeners1(tab_name) {
     if (e.keyCode == 37 || e.keyCode == 39) // left or right arrow
       gradioApp().getElementById(tab_name+"_exporter_button").click()
   });
-  console.log("======")
+  console.log("tab_name")
   console.log(tab_name)
   
   // 创建导出按钮
@@ -50,7 +50,7 @@ function attachGalleryListeners1(tab_name) {
   actionsColumn.appendChild(exporterButton);
 
   // 将新创建的div添加到页面上
-  const parent = gradioApp().querySelector(`#${tab_name}_generation_info`);
+  const parent = gradioApp().querySelector('#'+tab_name+'_gallery')
   parent.insertBefore(actionsColumn, parent.firstChild);
 
   return gallery;
