@@ -37,7 +37,7 @@ function attachGalleryListeners1(tab_name) {
   exporterButton.id = tab_name+"_exporter_button";
   exporterButton.style.display = "none";
 exporterButton.onclick = function() {
-  let formValues = gradioApp().getInputValues();
+  let formValues = gradioApp().getInputData();
   let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(formValues));
   let dlAnchorElem = document.createElement('a');
   dlAnchorElem.setAttribute("href", dataStr);
