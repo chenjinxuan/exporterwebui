@@ -29,7 +29,7 @@ function attachGalleryListeners1(tab_name) {
   //     gradioApp().getElementById(tab_name+"_exporter_button").click()
   // });
   console.log("tab_name")
-  console.log(tab_name)
+  console.log(gradioApp())
   
   // 创建导出按钮
   const exporterButton = document.createElement("button");
