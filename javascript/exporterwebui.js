@@ -1,5 +1,196 @@
-let txt2img_gallery1, img2img_gallery1, modal1 = undefined;
+// Thanks to the 5ch user who wrote the original script.
+// Original ID:8+9FG8Jy0, Improved Script https://rentry.org/43zdr
+// nan-J NovelAI Club
 
+// Maximum number of histories will be kept
+const MaxHistory = 10;
+// History of positive prompt
+let historyBox = (function () {
+  let _historyBox = [];
+
+  return {
+    push: function (prompt) {
+      if (prompt == _historyBox[_historyBox.length - 1]) return;
+      _historyBox.push(prompt);
+      if (MaxHistory < _historyBox.length) {
+        _historyBox.shift();
+      }
+    },
+    pop: function () {
+      let prePrompt = _historyBox.pop();
+      return prePrompt;
+    },
+  };
+})();
+// History of negative prompt
+let nhistoryBox = (function () {
+  let _historyBox = [];
+
+  return {
+    push: function (prompt) {
+      if (prompt == _historyBox[_historyBox.length - 1]) return;
+      _historyBox.push(prompt);
+      if (MaxHistory < _historyBox.length) {
+        _historyBox.shift();
+      }
+    },
+    pop: function () {
+      let prePrompt = _historyBox.pop();
+      return prePrompt;
+    },
+  };
+})();
+// Round function
+function round(value) {
+  return Math.round(value * 10000) / 10000;
+}
+function convert(input) {
+  const re_attention = /\{|\[|\}|\]|[^\{\}\[\]]+/gmu;
+  let text = input
+    .replaceAll("(", "\\(")
+    .replaceAll(")", "\\)")
+    .replace(/\\{2,}(\(|\))/gim, "\\$1");
+
+  let res = [];
+
+  let curly_brackets = [];
+  let square_brackets = [];
+
+  const curly_bracket_multiplier = 1.05;
+  const square_bracket_multiplier = 1 / 1.05;
+
+  function multiply_range(start_position, multiplier) {
+    for (let pos = start_position; pos < res.length; pos++) {
+      res[pos][1] = round(res[pos][1] * multiplier);
+    }
+  }
+
+  for (const match of text.matchAll(re_attention)) {
+    let word = match[0];
+
+    if (word == "{") {
+      curly_brackets.push(res.length);
+    } else if (word == "[") {
+      square_brackets.push(res.length);
+    } else if (word == "}" && curly_brackets.length > 0) {
+      multiply_range(curly_brackets.pop(), curly_bracket_multiplier);
+    } else if (word == "]" && square_brackets.length > 0) {
+      multiply_range(square_brackets.pop(), square_bracket_multiplier);
+    } else {
+      res.push([word, 1.0]);
+    }
+  }
+
+  for (const pos of curly_brackets) {
+    multiply_range(pos, curly_bracket_multiplier);
+  }
+
+  for (const pos of square_brackets) {
+    multiply_range(pos, square_bracket_multiplier);
+  }
+
+  if (res.length == 0) {
+    res = [["", 1.0]];
+  }
+
+  // console.log(res);
+  // merge runs of identical weights
+  let i = 0;
+  while (i + 1 < res.length) {
+    // console.log("test:" + res[i] + " : " + res[i+1])
+    if (res[i][1] == res[i + 1][1]) {
+      res[i][0] = res[i][0] + res[i + 1][0];
+      // console.log("splicing:" + res[i+1]);
+      res.splice(i + 1, 1);
+    } else {
+      i += 1;
+    }
+  }
+  // console.log(res);
+
+  let result = "";
+  for (let i = 0; i < res.length; i++) {
+    if (res[i][1] == 1.0) {
+      result += res[i][0];
+    } else {
+      result += "(" + res[i][0] + ":" + res[i][1].toString() + ")";
+    }
+  }
+  return result;
+}
+
+function dispatchInputEvent(target) {
+  let inputEvent = new Event("input");
+  Object.defineProperty(inputEvent, "target", { value: target });
+  target.dispatchEvent(inputEvent);
+}
+
+function onClickConvert() {
+  const default_prompt = "masterpiece, best quality,\n";
+  const default_negative =
+    "lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, worst quality, low quality, normal quality, jpeg artifacts, signature, watermark, username, blurry, artist name";
+
+  let result = "";
+  let prompt = gradioApp().querySelector("#txt2img_prompt > label > textarea");
+  historyBox.push(prompt.value);
+  result = convert(prompt.value);
+  if (result.length != 0) {
+    if (result.match(/^masterpiece, best quality,/) == null) {
+      result = default_prompt + result;
+    }
+  }
+  prompt.value = result;
+  dispatchInputEvent(prompt);
+
+  result = "";
+  let negprompt = gradioApp().querySelector(
+    "#txt2img_neg_prompt > label > textarea"
+  );
+  nhistoryBox.push(negprompt.value);
+  result = convert(negprompt.value);
+  if (result.length != 0) {
+    if (result.match(/^lowres,/) == null) {
+      result = default_negative + ",\n" + result;
+    }
+  } else {
+    result = default_negative;
+  }
+  negprompt.value = result;
+  dispatchInputEvent(negprompt);
+}
+
+function onClickGenerate() {
+  let prompt = gradioApp().querySelector("#txt2img_prompt > label > textarea");
+  historyBox.push(prompt.value);
+  let negprompt = gradioApp().querySelector(
+    "#txt2img_neg_prompt > label > textarea"
+  );
+  nhistoryBox.push(negprompt.value);
+}
+
+function onClickUndo() {
+  let prompt = gradioApp().querySelector("#txt2img_prompt > label > textarea");
+  let prePrompt = historyBox.pop();
+
+  if (!prePrompt) {
+    prompt.value = "";
+  } else {
+    prompt.value = prePrompt;
+  }
+  dispatchInputEvent(prompt);
+
+  let negprompt = gradioApp().querySelector(
+    "#txt2img_neg_prompt > label > textarea"
+  );
+  let prenegprompt = nhistoryBox.pop();
+
+  if (!prenegprompt) {
+    negprompt.value = "";
+  } else {
+    negprompt.value = prenegprompt;
+  }
+  dispatchInputEvent(negprompt);
+}
 
 function createButton(id, innerHTML, onClick) {
   const button = document.createElement("button");
@@ -12,20 +203,14 @@ function createButton(id, innerHTML, onClick) {
   return button;
 }
 
-function onExporter() {
-  const data = gradioInterface.inputs;
-    exportData(JSON.stringify(data));
-}
-
-onUiUpdate(function(){
-   console.log("==========");
+onUiUpdate(() => {
+  const generateBtn = gradioApp().querySelector("#txt2img_generate");
   const actionsColumn = gradioApp().querySelector("#txt2img_actions_column");
   const nai2local = gradioApp().querySelector("#nai2local");
 
+  if (!generateBtn || !actionsColumn || nai2local) return;
 
-  if (!actionsColumn || nai2local) return;
- console.log("==========1111");
- 
+  generateBtn.addEventListener("click", onClickGenerate);
 
   const nai2LocalArea = document.createElement("div");
   nai2LocalArea.id = "nai2local";
@@ -33,79 +218,14 @@ onUiUpdate(function(){
   nai2LocalArea.style = "padding: 0.4em 0em";
 
   const convertBtn = createButton(
-    "exporter",
-    "exporter",
-    onExporter
+    "nai2localconvert",
+    "NAIConvert",
+    onClickConvert
   );
+  const undoBtn = createButton("nai2localUndo", "History", onClickUndo);
 
   nai2LocalArea.appendChild(convertBtn);
+  nai2LocalArea.appendChild(undoBtn);
 
   actionsColumn.append(nai2LocalArea);
-
-
-
-  if (!txt2img_gallery1) {
-    txt2img_gallery1 = attachGalleryListeners1("txt2img")
-  }
-  if (!img2img_gallery1) {
-    img2img_gallery1 = attachGalleryListeners1("img2img")
-  }
-  // if (!modal1) {
-  //   modal1 = gradioApp().getElementById('lightboxModal')
-  //   modalObserver1.observe(modal1,  { attributes : true, attributeFilter : ['style'] });
-  // }
 });
-
-// let modalObserver1 = new MutationObserver(function(mutations) {
-//   mutations.forEach(function(mutationRecord) {
-//     let selectedTab = gradioApp().querySelector('#tabs div button.bg-white')?.innerText
-//     if (mutationRecord.target.style.display === 'none' && selectedTab === 'txt2img' || selectedTab === 'img2img')
-//       gradioApp().getElementById(selectedTab+"_exporter_button").click()
-//   });
-// });
-
-function attachGalleryListeners1(tab_name) {
-  gallery = gradioApp().querySelector('#'+tab_name+'_gallery')
-  gallery?.addEventListener('click', () => gradioApp().getElementById(tab_name+"_exporter_button").click());
-  gallery?.addEventListener('keydown', (e) => {
-    if (e.keyCode == 37 || e.keyCode == 39) // left or right arrow
-      gradioApp().getElementById(tab_name+"_exporter_button").click()
-  });
-  // 创建导出按钮
-  // const exporterButton = document.createElement("button");
-  // exporterButton.innerHTML = "Export";
-  // exporterButton.id = tab_name+"_exporter_button";
-  // exporterButton.style.display = "none";
-  // exporterButton.addEventListener("click", () => {
-  //   const data = gradioInterface.inputs;
-  //   exportData(JSON.stringify(data));
-  // });
-  
-  // exporterButton.className = "gr-button gr-button-lg gr-button-secondary";
-  // exporterButton.style = `padding-left: 0.1em; padding-right: 0em; margin: 0.1em 0;max-height: 2em; max-width: 6em`;
-
-  // const nai2LocalArea = document.createElement("div");
-  // nai2LocalArea.id = "nai2local";
-  // nai2LocalArea.className = "overflow-hidden flex col gap-4";
-  // nai2LocalArea.style = "padding: 0.4em 0em";
-  // nai2LocalArea.appendChild(exporterButton);
-
-
-  // const actionsColumn = gradioApp().querySelector(`#${tab_name}_actions_column`);
-
-  // 添加导出按钮
-  // const toolbar = gradioApp().querySelector(`#${tab_name}_generation_info_toolbar`);
-  // toolbar.appendChild(exporterButton);
-
-  
-  return gallery;
-}
-
-function exportData(data) {
-  const blob = new Blob([data], {type: 'application/json'});
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.download = 'data.json';
-  link.href = url;
-  link.click();
-}
