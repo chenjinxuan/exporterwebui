@@ -43,7 +43,7 @@ function attachGalleryListeners1(tab_name) {
   exporterButton.style.marginLeft = "10px";
   
   // 添加导出按钮
-  const toolbar = gradioApp().querySelector(`#${tab_name}_generation_info_toolbar`);
+  const toolbar = gradioApp().querySelector(`#${tab_name}_generation_info_button`);
   toolbar.appendChild(exporterButton);
   
 
