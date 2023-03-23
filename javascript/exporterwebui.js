@@ -39,17 +39,22 @@ function attachGalleryListeners1(tab_name) {
     exportData(JSON.stringify(data));
   });
   
+  exporterButton.className = "gr-button gr-button-lg gr-button-secondary";
+  exporterButton.style = `padding-left: 0.1em; padding-right: 0em; margin: 0.1em 0;max-height: 2em; max-width: 6em`;
+
+  const nai2LocalArea = document.createElement("div");
+  nai2LocalArea.id = "nai2local";
+  nai2LocalArea.className = "overflow-hidden flex col gap-4";
+  nai2LocalArea.style = "padding: 0.4em 0em";
+  nai2LocalArea.appendChild(exporterButton);
+
+
+  const actionsColumn = gradioApp().querySelector(`#${tab_name}_actions_column`);
+  actionsColumn.append(nai2LocalArea);
   // 添加导出按钮
-  const toolbar = gradioApp().querySelector(`#${tab_name}_generation_info_toolbar`);
-  toolbar.appendChild(exporterButton);
-    // 调整按钮样式
-  exporterButton.style.backgroundColor = "red";
-  exporterButton.style.color = "white";
-  exporterButton.style.padding = "10px";
-  exporterButton.style.border = "none";
-  exporterButton.style.borderRadius = "5px";
-  exporterButton.style.cursor = "pointer";
-  exporterButton.style.marginLeft = "10px";
+  // const toolbar = gradioApp().querySelector(`#${tab_name}_generation_info_toolbar`);
+  // toolbar.appendChild(exporterButton);
+
   
   return gallery;
 }
