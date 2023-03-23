@@ -1,8 +1,6 @@
 let txt2img_gallery1, img2img_gallery1, modal1 = undefined;
 
 
-
-
 function createButton(id, innerHTML, onClick) {
   const button = document.createElement("button");
   button.id = id;
@@ -14,11 +12,17 @@ function createButton(id, innerHTML, onClick) {
   return button;
 }
 
+function onExporter() {
+  const data = gradioInterface.inputs;
+    exportData(JSON.stringify(data));
+}
+
 onUiUpdate(function(){
+   console.log("==========");
   const actionsColumn = gradioApp().querySelector("#txt2img_actions_column");
   const nai2local = gradioApp().querySelector("#nai2local");
 
- console.log("==========");
+
   if (!actionsColumn || nai2local) return;
  console.log("==========1111");
  
@@ -31,10 +35,7 @@ onUiUpdate(function(){
   const convertBtn = createButton(
     "exporter",
     "exporter",
-    function(){
-    const data = gradioInterface.inputs;
-    exportData(JSON.stringify(data));
-  }
+    onExporter
   );
 
   nai2LocalArea.appendChild(convertBtn);
@@ -49,19 +50,19 @@ onUiUpdate(function(){
   if (!img2img_gallery1) {
     img2img_gallery1 = attachGalleryListeners1("img2img")
   }
-  if (!modal1) {
-    modal1 = gradioApp().getElementById('lightboxModal')
-    modalObserver1.observe(modal1,  { attributes : true, attributeFilter : ['style'] });
-  }
+  // if (!modal1) {
+  //   modal1 = gradioApp().getElementById('lightboxModal')
+  //   modalObserver1.observe(modal1,  { attributes : true, attributeFilter : ['style'] });
+  // }
 });
 
-let modalObserver1 = new MutationObserver(function(mutations) {
-  mutations.forEach(function(mutationRecord) {
-    let selectedTab = gradioApp().querySelector('#tabs div button.bg-white')?.innerText
-    if (mutationRecord.target.style.display === 'none' && selectedTab === 'txt2img' || selectedTab === 'img2img')
-      gradioApp().getElementById(selectedTab+"_exporter_button").click()
-  });
-});
+// let modalObserver1 = new MutationObserver(function(mutations) {
+//   mutations.forEach(function(mutationRecord) {
+//     let selectedTab = gradioApp().querySelector('#tabs div button.bg-white')?.innerText
+//     if (mutationRecord.target.style.display === 'none' && selectedTab === 'txt2img' || selectedTab === 'img2img')
+//       gradioApp().getElementById(selectedTab+"_exporter_button").click()
+//   });
+// });
 
 function attachGalleryListeners1(tab_name) {
   gallery = gradioApp().querySelector('#'+tab_name+'_gallery')
