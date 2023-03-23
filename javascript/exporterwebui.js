@@ -5,8 +5,8 @@ onUiUpdate(function(){
     txt2img_gallery1 = attachGalleryListeners1("txt2img")
   }
   if (!img2img_gallery1) {
-    img2img_gallery1 = attachGalleryListeners1("img2img")
-  }
+    img2img_gallery1 = attachGalleryListeners("img2img")
+  }1
   if (!modal1) {
     modal1 = gradioApp().getElementById('lightboxModal')
     modalObserver1.observe(modal,  { attributes : true, attributeFilter : ['style'] });
@@ -28,6 +28,21 @@ function attachGalleryListeners1(tab_name) {
     if (e.keyCode == 37 || e.keyCode == 39) // left or right arrow
       gradioApp().getElementById(tab_name+"_exporter_button").click()
   });
+  
+  // 创建导出按钮
+  const exporterButton = document.createElement("button");
+  exporterButton.innerHTML = "Export";
+  exporterButton.id = tab_name+"_exporter_button";
+  exporterButton.style.display = "none";
+  exporterButton.addEventListener("click", () => {
+    const data = gradioInterface.inputs;
+    exportData(JSON.stringify(data));
+  });
+  
+  // 添加导出按钮
+  const toolbar = gradioApp().querySelector(`#${tab_name}_generation_info_toolbar`);
+  toolbar.appendChild(exporterButton);
+  
   return gallery;
 }
 
@@ -39,10 +54,3 @@ function exportData(data) {
   link.href = url;
   link.click();
 }
-
-gradio.callbacks.push({
-  on_export: function() {
-    const data = gradioInterface.inputs;
-    exportData(JSON.stringify(data));
-  }
-});
