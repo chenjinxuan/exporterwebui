@@ -5,11 +5,11 @@ onUiUpdate(function(){
     txt2img_gallery1 = attachGalleryListeners1("txt2img")
   }
   if (!img2img_gallery1) {
-    img2img_gallery1 = attachGalleryListeners("img2img")
+    img2img_gallery1 = attachGalleryListeners1("img2img")
   }1
   if (!modal1) {
     modal1 = gradioApp().getElementById('lightboxModal')
-    modalObserver1.observe(modal,  { attributes : true, attributeFilter : ['style'] });
+    modalObserver1.observe(modal1,  { attributes : true, attributeFilter : ['style'] });
   }
 });
 
@@ -42,6 +42,14 @@ function attachGalleryListeners1(tab_name) {
   // 添加导出按钮
   const toolbar = gradioApp().querySelector(`#${tab_name}_generation_info_toolbar`);
   toolbar.appendChild(exporterButton);
+    // 调整按钮样式
+  exporterButton.style.backgroundColor = "red";
+  exporterButton.style.color = "white";
+  exporterButton.style.padding = "10px";
+  exporterButton.style.border = "none";
+  exporterButton.style.borderRadius = "5px";
+  exporterButton.style.cursor = "pointer";
+  exporterButton.style.marginLeft = "10px";
   
   return gallery;
 }
